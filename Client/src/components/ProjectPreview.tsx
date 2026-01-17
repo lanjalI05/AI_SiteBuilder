@@ -2,6 +2,7 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "re
 import { iframeScript } from "../assets/assets";
 import EditorPanel from "./EditorPanel";
 import LoaderSteps from "./LoaderSteps";
+import type { Project } from "@/types";
 
 interface ProjectPreviewProps {
   project: Project;
