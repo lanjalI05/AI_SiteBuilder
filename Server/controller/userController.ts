@@ -70,7 +70,7 @@ export const createUserProject = async (req: Request, res: Response) => {
         res.json({ projectId: project.id })
 
         const promptEnhanceResponse = await openai.chat.completions.create({
-            model: 'kwaipilot/kat-coder-pro',
+            model: 'tngtech/deepseek-r1t2-chimera:free',
             messages: [
                 {
                     role: 'system',
@@ -112,7 +112,7 @@ export const createUserProject = async (req: Request, res: Response) => {
         })
 
         const codeGenerationResponse = await openai.chat.completions.create({
-            model: 'kwaipilot/kat-coder-pro',
+            model: 'tngtech/deepseek-r1t2-chimera:free',
             messages: [
                 {
                     role: 'system',
@@ -298,9 +298,9 @@ export const purchaseCredits = async (req: Request, res: Response) => {
         }
 
         const plans = {
-            basic: {credits: 100, amount: 5},
-            pro: {credits: 400, amount: 19},
-            enterprise: {credits: 1000, amount: 49},
+            basic: {credits: 100, amount: 50},
+            pro: {credits: 400, amount: 100},
+            enterprise: {credits: 1000, amount: 150},
         }
 
         const userId = req.userId
@@ -331,11 +331,12 @@ export const purchaseCredits = async (req: Request, res: Response) => {
         line_items: [
             {
             price_data: {
-                currency: 'usd',
+                currency: 'inr',
                 product_data: {
-                    name: 'AiSiteBuilder - ${plan.credits} credits'
+                    name: `AiSiteBuilder - ${plan.credits} credits`
                 },
-                unit_amount: Math.floor(transaction.amount) * 100
+                unit_amount: (transaction.amount) * 100
+                // unit_amount: Math.floor(transaction.amount) * 100
             },
             quantity: 1 
             },
@@ -351,7 +352,8 @@ export const purchaseCredits = async (req: Request, res: Response) => {
         res.json({payment_link: session.url})
     } catch(error: any){
         console.log(error.code || error.message);
-        res.status(500).json({ message: error.message })        
+        res.status(500).json({ message: error.message })   
+             
     }
 }
 

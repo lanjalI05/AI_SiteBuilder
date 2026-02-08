@@ -56,7 +56,7 @@ const Pricing = () => {
                     {" "}
                     / {plan.credits} credits
                   </span>
-                </div>
+                </div> 
 
                 <p className="text-gray-300 mb-6">{plan.description}</p>
 

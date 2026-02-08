@@ -50,7 +50,7 @@ export const makeRevision = async (req: Request, res: Response) => {
         })
 
         const promptEnhanceResponse = await openai.chat.completions.create({
-            model: 'kwaipilot/kat-coder-pro',
+            model: 'tngtech/deepseek-r1t2-chimera:free',
             messages: [
                 {
                     role: 'system',
@@ -91,7 +91,7 @@ export const makeRevision = async (req: Request, res: Response) => {
 
         // Generate website code
         const codeGenerationResponse = await openai.chat.completions.create({
-            model: 'kwaipilot/kat-coder-pro',
+            model: 'tngtech/deepseek-r1t2-chimera:free',
             messages: [
                 {
                     role: 'system',
