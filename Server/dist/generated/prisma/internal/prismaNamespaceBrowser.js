@@ -51,12 +51,12 @@ export const ModelName = {
 /*
  * Enums
  */
-export const TransactionIsolationLevel = {
+export const TransactionIsolationLevel = runtime.makeStrictEnum({
     ReadUncommitted: 'ReadUncommitted',
     ReadCommitted: 'ReadCommitted',
     RepeatableRead: 'RepeatableRead',
     Serializable: 'Serializable'
-};
+});
 export const UserScalarFieldEnum = {
     id: 'id',
     email: 'email',

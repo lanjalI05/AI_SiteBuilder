@@ -12,8 +12,8 @@
 import * as runtime from "@prisma/client/runtime/client";
 const config = {
     "previewFeatures": [],
-    "clientVersion": "7.2.0",
-    "engineVersion": "0c8ef2ce45c83248ab3df073180d5eda9e8be7a3",
+    "clientVersion": "7.3.0",
+    "engineVersion": "9d6ad21cbbceab97458517b147a6a09ff43aa735",
     "activeProvider": "postgresql",
     "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel User {\n  id            String   @id\n  email         String\n  name          String\n  totalCreation Int      @default(0)\n  credits       Int      @default(20)\n  createdAt     DateTime @default(now())\n  updatedAt     DateTime @updatedAt\n  emailVerified Boolean  @default(false)\n\n  // Relations\n  projects     WebsiteProject[]\n  sessions     Session[]\n  accounts     Account[]\n  transactions Transaction[]\n\n  @@map(\"user\")\n}\n\nmodel WebsiteProject {\n  id                    String  @id @default(uuid())\n  name                  String\n  initial_prompt        String\n  current_code          String?\n  current_version_index String  @default(\"\")\n  userId                String\n  isPublished           Boolean @default(false)\n\n  // Relations\n  conversation Conversation[]\n  versions     Version[]\n  user         User           @relation(fields: [userId], references: [id])\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nenum Role {\n  user\n  assistant\n}\n\nmodel Conversation {\n  id        String   @id @default(uuid())\n  role      Role\n  content   String\n  timestamp DateTime @default(now())\n  projectId String\n\n  // Relations\n  project WebsiteProject @relation(fields: [projectId], references: [id], onDelete: Cascade)\n}\n\nmodel Version {\n  id          String   @id @default(uuid())\n  code        String\n  description String?\n  timestamp   DateTime @default(now())\n  projectId   String\n\n  // Relations\n  project WebsiteProject @relation(fields: [projectId], references: [id], onDelete: Cascade)\n}\n\nmodel Transaction {\n  id        String   @id @default(uuid())\n  isPaid    Boolean  @default(false)\n  planId    String\n  amount    Float\n  credits   Int\n  userId    String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  // Relations\n  user User @relation(fields: [userId], references: [id], onDelete: Cascade)\n}\n\nmodel Session {\n  id        String   @id\n  expiresAt DateTime\n  token     String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n  ipAddress String?\n  userAgent String?\n  userId    String\n  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@unique([token])\n  @@index([userId])\n  @@map(\"session\")\n}\n\nmodel Account {\n  id                    String    @id\n  accountId             String\n  providerId            String\n  userId                String\n  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)\n  accessToken           String?\n  refreshToken          String?\n  idToken               String?\n  accessTokenExpiresAt  DateTime?\n  refreshTokenExpiresAt DateTime?\n  scope                 String?\n  password              String?\n  createdAt             DateTime  @default(now())\n  updatedAt             DateTime  @updatedAt\n\n  @@index([userId])\n  @@map(\"account\")\n}\n\nmodel Verification {\n  id         String   @id\n  identifier String\n  value      String\n  expiresAt  DateTime\n  createdAt  DateTime @default(now())\n  updatedAt  DateTime @updatedAt\n\n  @@index([identifier])\n  @@map(\"verification\")\n}\n",
     "runtimeDataModel": {
@@ -29,11 +29,12 @@ async function decodeBase64AsWasm(wasmBase64) {
     return new WebAssembly.Module(wasmArray);
 }
 config.compilerWasm = {
-    getRuntime: async () => await import("@prisma/client/runtime/query_compiler_bg.postgresql.mjs"),
+    getRuntime: async () => await import("@prisma/client/runtime/query_compiler_fast_bg.postgresql.mjs"),
     getQueryCompilerWasmModule: async () => {
-        const { wasm } = await import("@prisma/client/runtime/query_compiler_bg.postgresql.wasm-base64.mjs");
+        const { wasm } = await import("@prisma/client/runtime/query_compiler_fast_bg.postgresql.wasm-base64.mjs");
         return await decodeBase64AsWasm(wasm);
-    }
+    },
+    importName: "./query_compiler_fast_bg.js"
 };
 export function getPrismaClientClass() {
     return runtime.getPrismaClient(config);
